@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --void:#0A0D12;
@@ -415,6 +416,7 @@
     <div class="row"><span>Subtotal</span><span id="subtotal">₡0</span></div>
     <div class="row"><span>Transmisión</span><span id="shipping">₡0</span></div>
     <div class="row total"><span>Total</span><span id="total">₡0</span></div>
+    <input type="email" id="checkoutEmail" placeholder="correo.enc@nodo (opcional)" style="width:100%;padding:11px 13px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:12.5px;">
     <button class="checkout-btn" id="checkoutBtn" disabled onclick="checkout()">Ejecutar pedido</button>
   </div>
 </aside>
@@ -430,6 +432,11 @@
     {id:'ghost-whisper', name:'Ghost Whisper', roast:'Modulador de voz', desc:'Once perfiles de voz, indetectable en llamada en vivo.', price:15400, sku:'VM-1A77', color1:'#1B2530', color2:'#00F0E0'},
     {id:'kinetic-grip', name:'Kinetic Grip', roast:'Exo-guante', desc:'Fuerza de agarre x6, plegable, batería de 12 horas.', price:23900, sku:'EG-5F63', color1:'#141922', color2:'#FF2E88'},
   ];
+
+  // --- Conexión Supabase ---
+  const SUPABASE_URL = 'https://ukcegumvoujltkwjabjn.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_1Z7N0P80cA8gUKkuXbeeDw_l7MWA4T7';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let cart = {};
 
@@ -546,8 +553,45 @@
     toastTimer = setTimeout(()=> toast.classList.remove('show'), 2200);
   }
 
-  function checkout(){
-    showToast('pedido simulado — demo sin pagos reales');
+  async function checkout(){
+    const ids = Object.keys(cart);
+    if(ids.length === 0) return;
+
+    const btn = document.getElementById('checkoutBtn');
+    const email = document.getElementById('checkoutEmail').value.trim() || null;
+    const subtotal = ids.reduce((s,id)=> s + PRODUCTS.find(p=>p.id===id).price*cart[id], 0);
+
+    btn.disabled = true;
+    btn.textContent = 'Transmitiendo...';
+
+    const rows = ids.map(id => {
+      const p = PRODUCTS.find(x=>x.id===id);
+      return {
+        producto_id: p.id,
+        producto_nombre: p.name,
+        cantidad: cart[id],
+        precio_unitario: p.price,
+        email_cliente: email,
+        total: p.price * cart[id]
+      };
+    });
+
+    const { error } = await supabaseClient.from('pedidos').insert(rows);
+
+    if(error){
+      console.error(error);
+      showToast('error de transmisión — intenta de nuevo');
+      btn.disabled = false;
+      btn.textContent = 'Ejecutar pedido';
+      return;
+    }
+
+    showToast('pedido registrado — nodo confirmará por canal cifrado');
+    cart = {};
+    document.getElementById('checkoutEmail').value = '';
+    renderCart();
+    closeDrawer();
+    btn.textContent = 'Ejecutar pedido';
   }
 
   renderProducts();
