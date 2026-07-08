@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GHOSTWIRE // mercado gris de tecnología</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0A0D12;
+    --void-2:#0F131A;
+    --panel:#141922;
+    --cyan:#00F0E0;
+    --magenta:#FF2E88;
+    --acid:#C6FF3D;
+    --text:#D8E4E8;
+    --text-dim:#7E8B93;
+    --line: rgba(0,240,224,0.18);
+    --line-strong: rgba(0,240,224,0.4);
+    --radius: 2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--void);
+    color:var(--text);
+    font-family:'Chakra Petch', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(rgba(0,240,224,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,240,224,0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  h1,h2,h3{
+    font-family:'Chakra Petch', sans-serif;
+    margin:0;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    color:#fff;
+    font-weight:700;
+  }
+  a{color:inherit;}
+  .mono{font-family:'Share Tech Mono', monospace;}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 32px;}
+
+  ::selection{background:var(--magenta);color:#0A0D12;}
+
+  /* scanline overlay */
+  .scanlines{
+    position:fixed;inset:0;pointer-events:none;z-index:200;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;
+  }
+
+  /* header */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(10,13,18,0.88);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px;max-width:1160px;margin:0 auto;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Chakra Petch', sans-serif;font-weight:700;font-size:20px;color:#fff;
+    text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;
+  }
+  .brand .dot{width:8px;height:8px;background:var(--acid);border-radius:50%;box-shadow:0 0 8px var(--acid);animation:blink 1.6s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+  .navlinks{display:flex;gap:30px;font-size:13px;font-family:'Share Tech Mono',monospace;}
+  .navlinks a{text-decoration:none;color:var(--text-dim);transition:color .15s;letter-spacing:0.03em;}
+  .navlinks a:hover{color:var(--cyan);}
+  .cart-btn{
+    position:relative;display:flex;align-items:center;gap:8px;
+    background:transparent;color:var(--cyan);border:1px solid var(--line-strong);
+    padding:9px 16px;border-radius:var(--radius);font-family:'Share Tech Mono',monospace;
+    font-size:13px;letter-spacing:0.04em;cursor:pointer;transition:all .15s;
+  }
+  .cart-btn:hover{background:rgba(0,240,224,0.08);box-shadow:0 0 14px rgba(0,240,224,0.25);}
+  .cart-badge{
+    background:var(--magenta);color:#0A0D12;font-size:11px;font-weight:700;
+    min-width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    padding:0 4px;
+  }
+
+  /* hero */
+  .hero{
+    padding:100px 32px 70px;max-width:1160px;margin:0 auto;
+    display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center;
+  }
+  .eyebrow{
+    font-family:'Share Tech Mono', monospace;font-size:12px;letter-spacing:0.16em;
+    text-transform:uppercase;color:var(--magenta);margin-bottom:18px;display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{content:'';width:22px;height:1px;background:var(--magenta);}
+  .hero h1{
+    font-size:58px;line-height:1.02;
+    text-shadow: 0 0 24px rgba(0,240,224,0.25);
+  }
+  .hero h1 .glitch{color:var(--cyan);position:relative;display:inline-block;}
+  .hero p.lead{font-size:16.5px;color:var(--text-dim);max-width:460px;margin:24px 0 34px;font-family:'Share Tech Mono',monospace;line-height:1.7;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--cyan);color:#0A0D12;border:none;padding:14px 26px;
+    border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;
+    text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    text-transform:uppercase;letter-spacing:0.04em;
+    transition:box-shadow .15s, transform .1s;
+    font-family:'Chakra Petch',sans-serif;
+  }
+  .btn-primary:hover{box-shadow:0 0 22px rgba(0,240,224,0.55);transform:translateY(-1px);}
+  .btn-ghost{
+    background:transparent;color:var(--text);border:1px solid var(--line-strong);
+    padding:14px 26px;border-radius:var(--radius);font-size:14px;font-weight:600;
+    cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;
+    text-transform:uppercase;letter-spacing:0.04em;font-family:'Chakra Petch',sans-serif;
+  }
+  .btn-ghost:hover{border-color:var(--magenta);color:var(--magenta);}
+
+  .hero-art{position:relative;aspect-ratio:1/1;}
+  .hero-art svg{width:100%;height:100%;}
+
+  /* status bar / origen */
+  .statusbar{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:44px 32px;}
+  .statusbar .wrap{display:grid;grid-template-columns:0.75fr 1.25fr;gap:56px;align-items:center;}
+  .tag{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--cyan);}
+  .statusbar h2{font-size:26px;margin-top:12px;}
+  .statusbar p{color:var(--text-dim);font-size:14.5px;max-width:520px;font-family:'Share Tech Mono',monospace;}
+  .stat-row{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line);}
+  .stat{flex:1;min-width:120px;padding:16px 20px;border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'Share Tech Mono',monospace;font-size:26px;font-weight:700;color:var(--acid);}
+  .stat .label{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em;margin-top:4px;}
+
+  /* catálogo */
+  .catalogo{padding:84px 32px;}
+  .cat-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:38px;flex-wrap:wrap;gap:14px;}
+  .cat-head h2{font-size:32px;}
+  .cat-head p{color:var(--text-dim);font-size:14px;margin-top:8px;max-width:440px;font-family:'Share Tech Mono',monospace;}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:0;display:flex;flex-direction:column;
+    transition:border-color .15s, box-shadow .15s;
+    position:relative;overflow:hidden;
+  }
+  .card:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,240,224,0.15);}
+  .card-id{
+    position:absolute;top:10px;right:12px;font-family:'Share Tech Mono',monospace;
+    font-size:10px;color:var(--text-dim);letter-spacing:0.05em;z-index:2;
+  }
+  .swatch{
+    height:130px;position:relative;overflow:hidden;
+    display:flex;align-items:flex-end;padding:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .swatch .stock-tag{
+    font-family:'Share Tech Mono',monospace;font-size:10.5px;
+    background:rgba(10,13,18,0.75);color:var(--acid);border:1px solid rgba(198,255,61,0.4);
+    padding:3px 8px;border-radius:var(--radius);letter-spacing:0.03em;
+  }
+  .card-body{padding:16px 18px 18px;}
+  .card h3{font-size:17px;letter-spacing:0.01em;}
+  .card .desc{font-size:12.5px;color:var(--text-dim);min-height:34px;margin-top:8px;font-family:'Share Tech Mono',monospace;line-height:1.55;}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;}
+  .price{font-family:'Share Tech Mono',monospace;font-weight:700;font-size:15.5px;color:var(--cyan);}
+  .add-btn{
+    background:transparent;border:1px solid var(--line-strong);color:var(--text);
+    padding:8px 14px;border-radius:var(--radius);font-size:12px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;
+    font-family:'Chakra Petch',sans-serif;text-transform:uppercase;letter-spacing:0.03em;
+  }
+  .add-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .add-btn.added{background:var(--acid);border-color:var(--acid);color:#0A0D12;}
+
+  /* newsletter / footer */
+  .footer-cta{background:var(--void-2);padding:70px 32px;text-align:center;border-top:1px solid var(--line);}
+  .footer-cta h2{font-size:28px;margin-bottom:10px;}
+  .footer-cta p{color:var(--text-dim);max-width:460px;margin:0 auto 26px;font-size:14px;font-family:'Share Tech Mono',monospace;}
+  .subscribe{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .subscribe input{
+    padding:13px 16px;border-radius:var(--radius);border:1px solid var(--line-strong);
+    font-family:'Share Tech Mono',monospace;font-size:13px;width:280px;max-width:100%;
+    background:var(--panel);color:var(--text);
+  }
+  .subscribe input::placeholder{color:var(--text-dim);}
+  .subscribe input:focus{outline:1px solid var(--cyan);outline-offset:1px;}
+
+  footer{background:var(--void);color:var(--text-dim);padding:28px 32px;font-size:12px;border-top:1px solid var(--line);font-family:'Share Tech Mono',monospace;}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+
+  /* cart drawer — terminal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,13,18,0.6);
+    opacity:0;pointer-events:none;transition:opacity .25s;z-index:90;
+  }
+  .overlay.open{opacity:1;pointer-events:auto;}
+
+  .drawer{
+    position:fixed;top:0;right:0;height:100%;width:410px;max-width:92vw;
+    background:var(--void-2);z-index:95;border-left:1px solid var(--line-strong);
+    transform:translateX(100%);transition:transform .3s ease;
+    display:flex;flex-direction:column;
+    box-shadow:-10px 0 40px rgba(0,240,224,0.08);
+    font-family:'Share Tech Mono',monospace;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    padding:18px 22px 14px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .drawer-head h3{font-size:16px;font-family:'Chakra Petch',sans-serif;display:flex;align-items:center;gap:8px;}
+  .close-btn{
+    background:none;border:1px solid var(--line);cursor:pointer;color:var(--text-dim);
+    width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+    border-radius:var(--radius);transition:all .15s;
+  }
+  .close-btn:hover{border-color:var(--magenta);color:var(--magenta);}
+
+  .drawer-manifest{
+    padding:9px 22px;font-size:11px;
+    color:var(--acid);letter-spacing:0.03em;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;
+  }
+  .drawer-manifest .cursor{width:6px;height:12px;background:var(--acid);animation:blink 1s infinite;}
+
+  .drawer-items{flex:1;overflow-y:auto;padding:8px 22px;}
+  .empty-cart{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:100%;text-align:center;color:var(--text-dim);gap:12px;padding:40px 20px;font-size:12.5px;
+  }
+  .cart-item{
+    display:flex;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);
+  }
+  .cart-item .thumb{
+    width:48px;height:48px;border-radius:var(--radius);flex-shrink:0;border:1px solid var(--line);
+  }
+  .cart-item .info{flex:1;}
+  .cart-item .info h4{font-size:13.5px;font-weight:600;margin:0 0 3px;font-family:'Chakra Petch',sans-serif;color:#fff;text-transform:uppercase;letter-spacing:0.02em;}
+  .cart-item .info .sub{font-size:11px;color:var(--text-dim);margin-bottom:8px;}
+  .qty-row{display:flex;align-items:center;gap:10px;}
+  .qty-btn{
+    width:22px;height:22px;border-radius:var(--radius);border:1px solid var(--line-strong);
+    background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    font-size:13px;line-height:1;
+  }
+  .qty-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .qty-val{font-size:12.5px;min-width:16px;text-align:center;}
+  .remove-link{
+    background:none;border:none;color:var(--magenta);font-size:11px;
+    cursor:pointer;padding:0;margin-left:auto;letter-spacing:0.02em;
+  }
+  .remove-link:hover{text-decoration:underline;}
+  .item-price{font-size:12.5px;white-space:nowrap;color:var(--cyan);}
+
+  .drawer-foot{
+    border-top:1px solid var(--line);padding:16px 22px 22px;
+  }
+  .drawer-foot .row{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;color:var(--text-dim);}
+  .drawer-foot .row.total{font-size:15.5px;font-weight:700;color:#fff;margin:12px 0 16px;font-family:'Chakra Petch',sans-serif;}
+  .checkout-btn{
+    width:100%;background:var(--magenta);color:#0A0D12;border:none;padding:14px;
+    border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;
+    text-transform:uppercase;letter-spacing:0.04em;font-family:'Chakra Petch',sans-serif;
+    transition:box-shadow .15s;
+  }
+  .checkout-btn:hover{box-shadow:0 0 20px rgba(255,46,136,0.5);}
+  .checkout-btn:disabled{background:#2A2F38;color:var(--text-dim);cursor:not-allowed;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--panel);border:1px solid var(--cyan);color:var(--cyan);padding:12px 20px;border-radius:var(--radius);
+    font-size:12.5px;opacity:0;pointer-events:none;transition:all .25s;z-index:99;
+    display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr;padding-top:56px;}
+    .hero h1{font-size:40px;}
+    .statusbar .wrap{grid-template-columns:1fr;gap:24px;}
+    .grid{grid-template-columns:repeat(2,1fr);}
+    .navlinks{display:none;}
+  }
+  @media(max-width:520px){
+    .grid{grid-template-columns:1fr;}
+    .stat-row{flex-direction:column;}
+    .stat{border-right:none;border-bottom:1px solid var(--line);}
+    .wrap,.nav,.hero,.catalogo,.statusbar,.footer-cta,footer{padding-left:20px;padding-right:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+
+<header>
+  <div class="nav">
+    <a href="#" class="brand">
+      <span class="dot"></span>
+      Ghostwire
+    </a>
+    <nav class="navlinks">
+      <a href="#origen">Red</a>
+      <a href="#catalogo">Catálogo</a>
+      <a href="#contacto">Acceso</a>
+    </nav>
+    <button class="cart-btn" onclick="openDrawer()" aria-label="Abrir carro de compras">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+      Carro
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <span class="eyebrow">Señal cifrada · nodo Valparaíso</span>
+    <h1>Hardware que<br>el sistema no<br>ve<span class="glitch">_venir.</span></h1>
+    <p class="lead">// implantes, cifrado y gear de calle probado en la red. sin registro, sin preguntas, entrega en punto ciego.</p>
+    <div class="hero-ctas">
+      <a href="#catalogo" class="btn-primary">
+        Entrar al catálogo
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#origen" class="btn-ghost">Sobre la red</a>
+    </div>
+  </div>
+  <div class="hero-art">
+    <svg viewBox="0 0 400 420" fill="none">
+      <rect x="1" y="1" width="398" height="418" fill="none" stroke="#1B2530" stroke-width="1" stroke-dasharray="3 4"/>
+      <circle cx="200" cy="180" r="90" stroke="#00F0E0" stroke-width="1.2" fill="none" opacity="0.5"/>
+      <circle cx="200" cy="180" r="90" stroke="#00F0E0" stroke-width="1.2" fill="none" stroke-dasharray="4 10" opacity="0.8">
+        <animateTransform attributeName="transform" type="rotate" from="0 200 180" to="360 200 180" dur="14s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="200" cy="180" r="55" fill="#141922" stroke="#FF2E88" stroke-width="1.5"/>
+      <path d="M175 165 L190 195 L165 195 L195 225 M215 165 L200 195 L225 195 L195 225" stroke="#00F0E0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="90" y="300" width="80" height="60" rx="2" fill="#141922" stroke="#C6FF3D" stroke-width="1.2"/>
+      <text x="130" y="325" text-anchor="middle" font-family="Share Tech Mono" font-size="9" fill="#C6FF3D">CIPHER</text>
+      <text x="130" y="340" text-anchor="middle" font-family="Share Tech Mono" font-size="9" fill="#7E8B93">CORE 2TB</text>
+      <line x1="105" y1="348" x2="155" y2="348" stroke="#C6FF3D" stroke-width="3" opacity="0.6"/>
+      <rect x="230" y="290" width="80" height="80" rx="2" fill="#141922" stroke="#FF2E88" stroke-width="1.2"/>
+      <circle cx="270" cy="322" r="16" stroke="#FF2E88" stroke-width="1.5" fill="none"/>
+      <circle cx="270" cy="322" r="4" fill="#FF2E88"/>
+      <text x="270" y="352" text-anchor="middle" font-family="Share Tech Mono" font-size="8.5" fill="#7E8B93">RETINA X9</text>
+      <text x="20" y="30" font-family="Share Tech Mono" font-size="9" fill="#00F0E0" opacity="0.7">ID: 0x9F2A</text>
+      <text x="300" y="30" font-family="Share Tech Mono" font-size="9" fill="#00F0E0" opacity="0.7">LINK OK</text>
+    </svg>
+  </div>
+</section>
+
+<section class="statusbar" id="origen">
+  <div class="wrap">
+    <div>
+      <span class="tag">// sobre la red</span>
+      <h2>Sin sede.<br>Sin nombre real.</h2>
+    </div>
+    <div>
+      <p>Ghostwire opera desde nodos rotativos, no desde una tienda. Cada pieza pasa por control de calidad de terceros antes de salir del almacén — no vendemos prototipos sin probar.</p>
+      <div class="stat-row" style="margin-top:20px;">
+        <div class="stat"><div class="num">73</div><div class="label">nodos activos</div></div>
+        <div class="stat"><div class="num">0</div><div class="label">registros guardados</div></div>
+        <div class="stat"><div class="num">&lt;48H</div><div class="label">entrega ciega</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="catalogo" id="catalogo">
+  <div class="wrap">
+    <div class="cat-head">
+      <div>
+        <h2>Catálogo</h2>
+        <p>// inventario rotativo. precios en créditos (₡), tipo de cambio fijado a las 00:00.</p>
+      </div>
+    </div>
+    <div class="grid" id="productGrid"></div>
+  </div>
+</section>
+
+<section class="footer-cta" id="contacto">
+  <h2>Únete a la frecuencia</h2>
+  <p>// deja tu correo cifrado y te avisamos cuando entra stock nuevo antes de que aparezca en el catálogo público.</p>
+  <form class="subscribe" onsubmit="event.preventDefault(); showToast('canal abierto — te avisaremos del próximo drop');">
+    <input type="email" placeholder="usuario@nodo.enc" required>
+    <button type="submit" class="btn-primary">Conectar</button>
+  </form>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 GHOSTWIRE — nodo Valparaíso</span>
+    <span>esta transmisión se autodestruye al cerrar</span>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3><span class="dot" style="width:6px;height:6px;background:var(--acid);border-radius:50%;display:inline-block;box-shadow:0 0 6px var(--acid);"></span>Tu carro</h3>
+    <button class="close-btn" onclick="closeDrawer()" aria-label="Cerrar carro">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-manifest" id="manifestLine">> paquete_activo: 0 items <span class="cursor"></span></div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="row"><span>Subtotal</span><span id="subtotal">₡0</span></div>
+    <div class="row"><span>Transmisión</span><span id="shipping">₡0</span></div>
+    <div class="row total"><span>Total</span><span id="total">₡0</span></div>
+    <button class="checkout-btn" id="checkoutBtn" disabled onclick="checkout()">Ejecutar pedido</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const PRODUCTS = [
+    {id:'retina-x9', name:'Retina X9', roast:'Implante ocular', desc:'Visión aumentada nocturna, zoom 8x, capa HUD superpuesta.', price:42900, sku:'OC-9F2A', color1:'#1B2530', color2:'#FF2E88'},
+    {id:'synapselink', name:'SynapseLink', roast:'Jack neural', desc:'Conexión directa a red local, latencia sub-10ms.', price:31500, sku:'NJ-7C11', color1:'#141922', color2:'#00F0E0'},
+    {id:'wraith-edge', name:'Wraith Edge', roast:'Holo-hoja', desc:'Filo de luz plegable, uso defensivo, carga 40 min.', price:27800, sku:'HB-4D02', color1:'#1B2530', color2:'#C6FF3D'},
+    {id:'cipher-core', name:'Cipher Core 2TB', roast:'Data shard', desc:'Almacenamiento cifrado, autodestrucción por intento fallido.', price:19900, sku:'DS-2E90', color1:'#141922', color2:'#7B2FF7'},
+    {id:'ghost-whisper', name:'Ghost Whisper', roast:'Modulador de voz', desc:'Once perfiles de voz, indetectable en llamada en vivo.', price:15400, sku:'VM-1A77', color1:'#1B2530', color2:'#00F0E0'},
+    {id:'kinetic-grip', name:'Kinetic Grip', roast:'Exo-guante', desc:'Fuerza de agarre x6, plegable, batería de 12 horas.', price:23900, sku:'EG-5F63', color1:'#141922', color2:'#FF2E88'},
+  ];
+
+  let cart = {};
+
+  function fmt(n){ return '₡' + n.toLocaleString('es-CL'); }
+
+  function renderProducts(){
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = PRODUCTS.map(p => `
+      <div class="card">
+        <span class="card-id mono">${p.sku}</span>
+        <div class="swatch" style="background:linear-gradient(135deg, ${p.color1}, ${p.color2})">
+          <span class="stock-tag">en stock</span>
+        </div>
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <div class="desc">${p.desc}</div>
+          <div class="card-footer">
+            <span class="price">${fmt(p.price)}</span>
+            <button class="add-btn" id="add-${p.id}" onclick="addToCart('${p.id}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function addToCart(id){
+    cart[id] = (cart[id] || 0) + 1;
+    renderCart();
+    showToast(PRODUCTS.find(p=>p.id===id).name + ' añadido al paquete');
+    const btn = document.getElementById('add-'+id);
+    btn.classList.add('added');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Ok';
+    setTimeout(()=>{
+      btn.classList.remove('added');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar';
+    }, 1400);
+  }
+
+  function changeQty(id, delta){
+    cart[id] = (cart[id] || 0) + delta;
+    if(cart[id] <= 0) delete cart[id];
+    renderCart();
+  }
+
+  function removeItem(id){
+    delete cart[id];
+    renderCart();
+  }
+
+  function renderCart(){
+    const ids = Object.keys(cart);
+    const badge = document.getElementById('cartBadge');
+    const totalItems = ids.reduce((s,id)=>s+cart[id],0);
+    badge.textContent = totalItems;
+
+    const container = document.getElementById('drawerItems');
+    const manifest = document.getElementById('manifestLine');
+    manifest.innerHTML = `&gt; paquete_activo: ${totalItems} item${totalItems===1?'':'s'} <span class="cursor"></span>`;
+
+    if(ids.length === 0){
+      container.innerHTML = `
+        <div class="empty-cart">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <p>// paquete vacío<br>selecciona hardware del catálogo</p>
+        </div>`;
+    } else {
+      container.innerHTML = ids.map(id => {
+        const p = PRODUCTS.find(x=>x.id===id);
+        const qty = cart[id];
+        return `
+          <div class="cart-item">
+            <div class="thumb" style="background:linear-gradient(135deg, ${p.color1}, ${p.color2})"></div>
+            <div class="info">
+              <h4>${p.name}</h4>
+              <div class="sub">${fmt(p.price)} c/u · ${p.sku}</div>
+              <div class="qty-row">
+                <button class="qty-btn" onclick="changeQty('${id}', -1)" aria-label="Restar">−</button>
+                <span class="qty-val">${qty}</span>
+                <button class="qty-btn" onclick="changeQty('${id}', 1)" aria-label="Sumar">+</button>
+                <button class="remove-link" onclick="removeItem('${id}')">quitar</button>
+              </div>
+            </div>
+            <div class="item-price">${fmt(p.price*qty)}</div>
+          </div>`;
+      }).join('');
+    }
+
+    const subtotal = ids.reduce((s,id)=> s + PRODUCTS.find(p=>p.id===id).price*cart[id], 0);
+    const shipping = subtotal === 0 ? 0 : (subtotal >= 50000 ? 0 : 4900);
+    document.getElementById('subtotal').textContent = fmt(subtotal);
+    document.getElementById('shipping').textContent = shipping === 0 ? 'gratis' : fmt(shipping);
+    document.getElementById('total').textContent = fmt(subtotal + shipping);
+    document.getElementById('checkoutBtn').disabled = ids.length === 0;
+  }
+
+  function openDrawer(){
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeDrawer(){
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    toast.textContent = '// ' + msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove('show'), 2200);
+  }
+
+  function checkout(){
+    showToast('pedido simulado — demo sin pagos reales');
+  }
+
+  renderProducts();
+  renderCart();
+</script>
+
+</body>
+</html>
